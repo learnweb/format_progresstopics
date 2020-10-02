@@ -34,12 +34,12 @@ require_once($CFG->dirroot . "/course/format/topics/renderer.php");
  */
 class format_progresstopics_renderer extends format_topics_renderer {
 
-    function output_progress_bar() {
+    protected function output_progress_bar() {
         global $COURSE, $CFG, $USER;
 
         $cc = context_course::instance($COURSE->id);
         // Can edit settings?
-        $can_edit = has_capability('moodle/course:update', $cc);
+        $canedit = has_capability('moodle/course:update', $cc);
 
         require_once("{$CFG->libdir}/completionlib.php");
         $progresssections = [];
@@ -47,13 +47,13 @@ class format_progresstopics_renderer extends format_topics_renderer {
 
         // Don't display if completion isn't enabled!
         if (!completion_info::is_enabled_for_site()) {
-            if ($can_edit) {
+            if ($canedit) {
                 echo get_string('completionnotenabledforsite', 'completion');
             }
             return;
 
         } else if (!$completioninfo->is_enabled()) {
-            if ($can_edit) {
+            if ($canedit) {
                 echo get_string('completionnotenabledforcourse', 'completion');
             }
             return;
@@ -79,8 +79,10 @@ class format_progresstopics_renderer extends format_topics_renderer {
                 $completed = $task->is_complete();
                 $sectionindex = intval($activities[intval($criteria->moduleinstance)]->sectionnum);
                 if (!array_key_exists($sectionindex, $sectiondata)) {
+                    $sectioninfo = $info->get_section_info($sectionindex);
                     $sectiondata[$sectionindex] = array(
-                        'name' => $info->get_section_info($sectionindex)->name,
+                        'name' => $sectioninfo->name,
+                        'sectionnumber' => $sectioninfo->section,
                         'completed' => 0,
                         'total' => 0
                     );
@@ -94,7 +96,8 @@ class format_progresstopics_renderer extends format_topics_renderer {
                 $studentpoints = floatval($gradingdetails["status"]);
                 $totalpoints = floatval($gradingdetails["requirement"]);
                 $progresssections[] = [
-                    "name" => "$studentpoints/$totalpoints",
+                    "value" => "$studentpoints/$totalpoints",
+                    "name" => get_string("grade"),
                     "percentage" => $studentpoints * 100 / $totalpoints
                 ];
             } else {
@@ -103,12 +106,17 @@ class format_progresstopics_renderer extends format_topics_renderer {
         }
 
         foreach ($sectiondata as $section) {
-            $name = get_string('section0name', 'format_progresstopics');
+            if ($section['sectionnumber'] == 0) {
+                $name = get_string('section0name', 'format_progresstopics');
+            } else {
+                $name = get_string('sectionplaceholdername', 'format_progresstopics', $section['sectionnumber']);
+            }
             if ($section['name']) {
                 $name = $section['name'];
             }
             $percentage = round((floatval($section['completed']) / floatval($section['total'])) * 100);
             $progresssections[] = array(
+                "value" => "{$section['completed']}/{$section['total']}",
                 "name" => $name,
                 "percentage" => $percentage
             );
