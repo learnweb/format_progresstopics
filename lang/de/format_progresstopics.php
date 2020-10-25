@@ -31,4 +31,3 @@ $string['showfromothers'] = 'Abschnitt anzeigen';
 $string['privacy:metadata'] = 'Das Progressformat Plugin speichert keine personenbezogenen Daten.';
 
 $string['additionalrequirementswarning'] = 'Es gibt weitere Vorraussetzungen zum abschließen dieses Kurses';
-$string['progresspendingwarning'] = 'Einige Abgaben müssen noch verarbeitet werden, der Fortschritt kann daher unvollständig angezeigt werden';
