@@ -40,5 +40,4 @@ $string['privacy:metadata'] = 'The Topics format plugin does not store any perso
 
 // mustache warnings
 $string['additionalrequirementswarning'] = 'there are additional requirements to finish this course';
-$string['progresspendingwarning'] = 'Some completion data is still pending, the completion status may be inaccurate';
 

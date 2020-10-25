@@ -67,16 +67,15 @@ class format_progresstopics_renderer extends format_topics_renderer {
         $completions = $completioninfo->get_completions($USER->id);
         $activities = $completioninfo->get_activities();
         $sectiondata = [];
-        $pending = false;
         $additionalrequirements = false;
         foreach ($completions as $task) {
             $criteria = $task->get_criteria();
-            if ($criteria->is_pending($task)) {
-                $pending = true;
-            }
             $ct = $criteria->criteriatype;
             if ($ct == COMPLETION_CRITERIA_TYPE_ACTIVITY) {
-                $completed = $task->is_complete();
+                $completed = $criteria->review($task, false);
+                if (!isset($activities[$criteria->moduleinstance])) {
+                    continue;
+                }
                 $sectionindex = intval($activities[intval($criteria->moduleinstance)]->sectionnum);
                 if (!array_key_exists($sectionindex, $sectiondata)) {
                     $sectioninfo = $info->get_section_info($sectionindex);
@@ -124,7 +123,6 @@ class format_progresstopics_renderer extends format_topics_renderer {
 
         $templatecontext["progress-sections"] = $progresssections;
         $templatecontext['additionalrequirements'] = $additionalrequirements;
-        $templatecontext['pendingupdate'] = $pending;
 
         echo $this->render_from_template('course/../format/progresstopics/templates/progressbox', $templatecontext); // Ugly hack.
     }
